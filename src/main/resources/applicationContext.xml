@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+    <bean id="properties" class="com.ifeng.rocketmq.connect.config.ConnectInnerProperties">
+        <constructor-arg value="${rocketmq.connect.group.name}"/>
+        <constructor-arg value="${rocketmq.connect.topic}"/>
+        <constructor-arg value="${rocketmq.name.srv.addr}"/>
+    </bean>
+
+    <bean id="producerHolder" class="com.ifeng.rocketmq.connect.core.ProducerHolder">
+        <constructor-arg ref="properties"/>
+    </bean>
+
+    <bean id="workerHelder" class="com.ifeng.rocketmq.connect.core.WorkerHelder">
+        <constructor-arg ref="properties"/>
+    </bean>
+
+</beans>
