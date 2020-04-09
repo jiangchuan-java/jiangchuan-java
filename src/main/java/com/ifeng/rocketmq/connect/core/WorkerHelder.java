@@ -52,7 +52,7 @@ public class WorkerHelder {
                 try {
                     ApolloConfigModel apolloConfig = JackSonUtils.json2Bean(configValue, ApolloConfigModel.class);
                     if (apolloConfig.getState() != WorkerStateConstant.DELETE) {
-                        buildConsumerWorker(workerName, apolloConfig.getState());
+                        buildConsumerWorker(workerName, apolloConfig);
                     }
                 } catch (Throwable t) {
                     logger.error("consumerInit failed : {}", t);
@@ -62,12 +62,14 @@ public class WorkerHelder {
         config.addChangeListener(new WorkerStateChangeListener());
     }
 
-    private void buildConsumerWorker(String workerName, int initState) {
+
+    private void buildConsumerWorker(String workerName, ApolloConfigModel apolloConfig) {
         try {
-            ConsumerWorker consumerWorker = new ConsumerWorker(workerName, properties.groupName, properties.nameSrv, properties.topic, workerName);
+            ConsumerWorker consumerWorker = new ConsumerWorker(workerName, properties.groupName,
+                    properties.nameSrv, properties.topic,apolloConfig);
             logger.info("{} build success", workerName);
             workerMap.put(workerName, consumerWorker);
-            stateChangeHandler(workerName, initState);
+            stateChangeHandler(workerName, apolloConfig.getState());
         } catch (Exception e) {
             logger.error("buildConsumerWorker failed workerName: {}, exception: {}", workerName, e);
         }
@@ -80,11 +82,14 @@ public class WorkerHelder {
             try {
                 for (String workerName : changeEvent.changedKeys()) {
                     String newValue = changeEvent.getChange(workerName).getNewValue();
-                    ApolloConfigModel config = JackSonUtils.json2Bean(newValue, ApolloConfigModel.class);
-                    if (workerMap.contains(workerName)) {
-                        stateChangeHandler(workerName, config.getState());
+                    String oldValue = changeEvent.getChange(workerName).getOldValue();
+
+                    ApolloConfigModel newConfig = JackSonUtils.json2Bean(newValue, ApolloConfigModel.class);
+                    ApolloConfigModel oldConfig = JackSonUtils.json2Bean(oldValue, ApolloConfigModel.class);
+                    if (workerMap.containsKey(workerName)) {
+                        diff(workerName, newConfig, oldConfig);
                     } else {
-                        buildConsumerWorker(workerName, config.getState());
+                        buildConsumerWorker(workerName, newConfig);
                     }
                 }
             } catch (Exception e) {
@@ -93,7 +98,27 @@ public class WorkerHelder {
         }
     }
 
-    private void stateChangeHandler(String workerName, int state) {
+    private void diff(String workerName, ApolloConfigModel newConfig, ApolloConfigModel oldConfig){
+        String oldState = oldConfig.getState();
+        String newState = newConfig.getState();
+        //state has changed
+        if(!Objects.equals(oldState,newState)){
+            if(oldState.equals(WorkerStateConstant.DELETE)){
+                workerMap.remove(workerName);
+                buildConsumerWorker(workerName,newConfig);
+            } else {
+                if(oldState.equals(WorkerStateConstant.PAUSE)){
+                    if(newState.equals(WorkerStateConstant.RUNNING) || newState.equals(WorkerStateConstant.RESUME)){
+                        newState = WorkerStateConstant.RESUME;
+                    }
+                }
+                stateChangeHandler(workerName,newState);
+            }
+        }
+        configChangeHandler(workerName, newConfig);
+    }
+
+    private void stateChangeHandler(String workerName, String state) {
         try {
             ConsumerWorker worker = workerMap.get(workerName);
             switch (state) {
@@ -113,6 +138,15 @@ public class WorkerHelder {
 
         } catch (Throwable t) {
             logger.error("stateChangeHandler failed workerName: {}, state: {}, exception: {}", workerName, state, t);
+        }
+    }
+
+    private void configChangeHandler(String workerName, ApolloConfigModel config){
+        try {
+            ConsumerWorker worker = workerMap.get(workerName);
+            worker.updateConfig(config.getHttpSinkUrl(),config.getContentType());
+        } catch (Throwable t) {
+            logger.error("configChangeHandler failed workerName: {}, exception: {}", workerName, t);
         }
     }
 

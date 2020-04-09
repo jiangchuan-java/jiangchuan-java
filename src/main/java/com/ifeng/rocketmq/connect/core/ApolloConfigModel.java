@@ -9,7 +9,7 @@ package com.ifeng.rocketmq.connect.core;
 public class ApolloConfigModel {
 
     //状态
-    private int state;
+    private String state;
 
     //推送url
     private String httpSinkUrl;
@@ -20,12 +20,11 @@ public class ApolloConfigModel {
     //请求类型
     private String contentType;
 
-
-    public int getState() {
+    public String getState() {
         return state;
     }
 
-    public void setState(int state) {
+    public void setState(String state) {
         this.state = state;
     }
 

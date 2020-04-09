@@ -8,11 +8,11 @@ package com.ifeng.rocketmq.connect.config;
  */
 public class WorkerStateConstant {
 
-    public static final int RUNNING = 1;
+    public static final String RUNNING = "RUNNING";
 
-    public static final int PAUSE = 2;
+    public static final String PAUSE = "PAUSE";
 
-    public static final int RESUME = 3;
+    public static final String RESUME = "RESUME";
 
-    public static final int DELETE = 4;
+    public static final String DELETE = "DELETE";
 }
