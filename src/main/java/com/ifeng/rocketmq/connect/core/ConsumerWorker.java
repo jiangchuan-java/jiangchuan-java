@@ -37,17 +37,21 @@ public class ConsumerWorker {
 
     public void start() throws Exception{
         consumer.start();
+        logger.info("{} start completed", workerName);
     }
 
     public void pause(){
         consumer.suspend();
+        logger.info("{} suspend completed", workerName);
     }
 
     public void resume() {
         consumer.resume();
+        logger.info("{} resume completed", workerName);
     }
 
     public void shutdown() {
         consumer.shutdown();
+        logger.info("{} shutdown completed", workerName);
     }
 }

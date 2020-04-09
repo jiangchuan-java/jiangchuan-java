@@ -65,6 +65,7 @@ public class WorkerHelder {
     private void buildConsumerWorker(String workerName, int initState) {
         try {
             ConsumerWorker consumerWorker = new ConsumerWorker(workerName, properties.groupName, properties.nameSrv, properties.topic, workerName);
+            logger.info("{} build success", workerName);
             workerMap.put(workerName, consumerWorker);
             stateChangeHandler(workerName, initState);
         } catch (Exception e) {
