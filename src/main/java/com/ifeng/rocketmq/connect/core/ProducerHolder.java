@@ -41,7 +41,7 @@ public class ProducerHolder{
     }
     public SendResult sendMsg(String tag, String body, Integer delayTimeSeconds) {
         try {
-            Message msg = new Message(this.properties.topic, body.getBytes(RemotingHelper.DEFAULT_CHARSET));
+            Message msg = new Message(this.properties.topic, tag, body.getBytes(RemotingHelper.DEFAULT_CHARSET));
             if (Objects.nonNull(delayTimeSeconds) && delayTimeSeconds > 0) {
                 msg.putUserProperty(ConnectMsgProperties.CUSTOM_DELAY_SECONDS, String.valueOf(delayTimeSeconds));
             }

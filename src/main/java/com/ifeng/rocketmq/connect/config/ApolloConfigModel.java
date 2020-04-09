@@ -1,4 +1,4 @@
-package com.ifeng.rocketmq.connect.core;
+package com.ifeng.rocketmq.connect.config;
 
 /**
  * @Des:
@@ -15,10 +15,12 @@ public class ApolloConfigModel {
     private String httpSinkUrl;
 
     //重试次数
-    private int retryTimes;
+    private int remainRetries;
 
     //请求类型
     private String contentType;
+
+    private long retryInertval;
 
     public String getState() {
         return state;
@@ -36,13 +38,6 @@ public class ApolloConfigModel {
         this.httpSinkUrl = httpSinkUrl;
     }
 
-    public int getRetryTimes() {
-        return retryTimes;
-    }
-
-    public void setRetryTimes(int retryTimes) {
-        this.retryTimes = retryTimes;
-    }
 
     public String getContentType() {
         return contentType;
@@ -52,4 +47,19 @@ public class ApolloConfigModel {
         this.contentType = contentType;
     }
 
+    public int getRemainRetries() {
+        return remainRetries;
+    }
+
+    public void setRemainRetries(int remainRetries) {
+        this.remainRetries = remainRetries;
+    }
+
+    public long getRetryInertval() {
+        return retryInertval;
+    }
+
+    public void setRetryInertval(long retryInertval) {
+        this.retryInertval = retryInertval;
+    }
 }

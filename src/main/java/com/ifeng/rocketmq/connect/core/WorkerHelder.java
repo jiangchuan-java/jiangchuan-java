@@ -5,6 +5,7 @@ import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.ctrip.framework.apollo.ConfigService;
 import com.ctrip.framework.apollo.model.ConfigChangeEvent;
 
+import com.ifeng.rocketmq.connect.config.ApolloConfigModel;
 import com.ifeng.rocketmq.connect.config.ConnectInnerProperties;
 import com.ifeng.rocketmq.connect.config.WorkerStateConstant;
 import com.ifeng.rocketmq.connect.util.JackSonUtils;

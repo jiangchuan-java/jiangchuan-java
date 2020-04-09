@@ -1,14 +1,9 @@
 package com.ifeng.rocketmq.connect.core;
 
+import com.ifeng.rocketmq.connect.config.ApolloConfigModel;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
-import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
-import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
-import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
-import org.apache.rocketmq.common.message.MessageExt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 
 /**
@@ -21,21 +16,28 @@ public class ConsumerWorker {
 
     private static final Logger logger = LoggerFactory.getLogger(ConsumerWorker.class);
 
+    //与apollo中的key相对应
     private String workerName;
 
     private String workerId;
 
+    //topic="ConnectTopic"
     private String topic;
 
     private DefaultMQPushConsumer consumer;
-
-    private ConnectMessageListener connectMessageListener;
 
     private volatile String sinkUrl;
 
     private volatile String contentType;
 
+    //worker 是否启动过，当初始state=pause时，重启服务，并收到running操作时，要先执行resume，在执行start
     private volatile boolean hasStarted = false;
+
+    //worker 任务推送的重试次数
+    private int remainRetries;
+
+    //重试间隔
+    private long retryInertval;
 
 
     public ConsumerWorker(String workerName, String groupName, String nameSrv,
@@ -47,6 +49,10 @@ public class ConsumerWorker {
         consumer.getDefaultMQPushConsumerImpl().registerConsumeMessageHook(new DelayTimeHook(consumer));
         consumer.registerMessageListener(new ConnectMessageListener(this));
         consumer.subscribe(topic,workerName);
+        this.sinkUrl = config.getHttpSinkUrl();
+        this.contentType = config.getContentType();
+        this.remainRetries = config.getRemainRetries();
+        this.retryInertval = config.getRetryInertval();
     }
 
     public void updateConfig(String sinkUrl, String contentType){
@@ -86,5 +92,13 @@ public class ConsumerWorker {
 
     public String getSinkUrl() {
         return sinkUrl;
+    }
+
+    public int getRemainRetries() {
+        return remainRetries;
+    }
+
+    public long getRetryInertval() {
+        return retryInertval;
     }
 }
